@@ -5,6 +5,7 @@ import Login from "../pages/Login"
 import Register from "../pages/Register"
 import AuthLayout from "../layout/AuthLayout"
 import Dashboard from "../pages/Dashboard"
+import ProjectList from "../pages/ProjectList"
 
 
 export default function AppRouter() {
@@ -17,23 +18,24 @@ export default function AppRouter() {
             {/* Public routes */}
             <Route
                 path="/login"
-                element={isAuth ? <Navigate to="/dashboard" /> : <Login />}
+                element={isAuth ? <Navigate to="/projects" /> : <Login />}
             />
             <Route
                 path="/register"
-                element={isAuth ? <Navigate to="/dashboard" /> : <Register />}
+                element={isAuth ? <Navigate to="/projects" /> : <Register />}
             />
 
             {/* Protected routes */}
             <Route
                 element={isAuth ? <AuthLayout /> : <Navigate to="/login" />}
             >
-                <Route path="/dashboard" element={<Dashboard />} />
-                {/* future protected routes go here */}
+                <Route path="/projects" element={<ProjectList />} />
+                <Route path="/dashboard/:projectId" element={<Dashboard />} />
             </Route>
 
+
             {/* Fallback */}
-            <Route path="*" element={<Navigate to="/dashboard" />} />
+            <Route path="*" element={<Navigate to="/projects" />} />
         </Routes>
     )
 }

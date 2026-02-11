@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { loginApi, registerApi } from "../api/auth.api";
-import type { AuthState } from "../types/auth";
+import type { AuthState, UserRegisterRequest } from "../types/auth";
 
 const encodeBasic = (u: string, p: string) =>
     btoa(`${u}:${p}`)
@@ -31,13 +31,7 @@ export const login = createAsyncThunk(
 export const register = createAsyncThunk(
     "auth/register",
     async (
-        payload: {
-            username: string
-            email: string
-            password: string
-            role: string
-            teamId: string
-        },
+        payload: UserRegisterRequest,
         { rejectWithValue }
     ) => {
         try {

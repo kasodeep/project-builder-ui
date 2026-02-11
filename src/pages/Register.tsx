@@ -41,31 +41,35 @@ export default function Register() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-background to-muted px-4">
-            <Card className="w-full max-w-sm shadow-lg">
-                <CardHeader className="space-y-1">
-                    <CardTitle className="text-2xl text-center">Create account</CardTitle>
-                    <p className="text-sm text-muted-foreground text-center">
+        <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
+            <Card className="w-full max-w-md bg-white border border-slate-200 shadow-xl rounded-xl">
+
+                <CardHeader className="space-y-2 pb-6">
+                    <CardTitle className="text-2xl font-semibold text-center text-slate-800">
+                        Create account
+                    </CardTitle>
+                    <p className="text-sm text-slate-500 text-center">
                         Join your team workspace
                     </p>
                 </CardHeader>
 
-
                 <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="space-y-1">
-                            <Label>Username</Label>
+                    <form onSubmit={handleSubmit} className="space-y-5">
+
+                        <div className="space-y-2">
+                            <Label className="text-slate-700">Username</Label>
                             <Input
                                 required
                                 value={form.username}
                                 onChange={(e) =>
                                     setForm({ ...form, username: e.target.value })
                                 }
+                                className="border-slate-300 focus:ring-2 focus:ring-indigo-500"
                             />
                         </div>
 
-                        <div className="space-y-1">
-                            <Label>Email</Label>
+                        <div className="space-y-2">
+                            <Label className="text-slate-700">Email</Label>
                             <Input
                                 type="email"
                                 required
@@ -73,11 +77,12 @@ export default function Register() {
                                 onChange={(e) =>
                                     setForm({ ...form, email: e.target.value })
                                 }
+                                className="border-slate-300 focus:ring-2 focus:ring-indigo-500"
                             />
                         </div>
 
-                        <div className="space-y-1">
-                            <Label>Password</Label>
+                        <div className="space-y-2">
+                            <Label className="text-slate-700">Password</Label>
                             <Input
                                 type="password"
                                 required
@@ -85,18 +90,19 @@ export default function Register() {
                                 onChange={(e) =>
                                     setForm({ ...form, password: e.target.value })
                                 }
+                                className="border-slate-300 focus:ring-2 focus:ring-indigo-500"
                             />
                         </div>
 
-                        <div className="space-y-1">
-                            <Label>Role</Label>
+                        <div className="space-y-2">
+                            <Label className="text-slate-700">Role</Label>
                             <Select
                                 value={form.role}
                                 onValueChange={(v) =>
                                     setForm({ ...form, role: v })
                                 }
                             >
-                                <SelectTrigger>
+                                <SelectTrigger className="border-slate-300 focus:ring-2 focus:ring-indigo-500">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -106,8 +112,8 @@ export default function Register() {
                             </Select>
                         </div>
 
-                        <div className="space-y-1">
-                            <Label>Team</Label>
+                        <div className="space-y-2">
+                            <Label className="text-slate-700">Team</Label>
                             <Select
                                 disabled={teamsLoading}
                                 value={form.teamId}
@@ -115,7 +121,7 @@ export default function Register() {
                                     setForm({ ...form, teamId: v })
                                 }
                             >
-                                <SelectTrigger>
+                                <SelectTrigger className="border-slate-300 focus:ring-2 focus:ring-indigo-500">
                                     <SelectValue
                                         placeholder={
                                             teamsLoading ? "Loading teams..." : "Select team"
@@ -133,27 +139,33 @@ export default function Register() {
                         </div>
 
                         {error && (
-                            <p className="text-sm text-destructive text-center">
+                            <p className="text-sm text-red-500 text-center">
                                 {error}
                             </p>
                         )}
 
                         <Button
-                            className="w-full"
                             disabled={loading || teamsLoading || !form.teamId}
+                            type="submit"
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-md"
                         >
                             {loading ? "Registering..." : "Register"}
                         </Button>
 
-                        <p className="text-sm text-center text-muted-foreground">
-                            Already registered?{" "}
-                            <Link to="/login" className="underline">
-                                Login
+                        <p className="text-sm text-center text-slate-500">
+                            Already have an account?{" "}
+                            <Link
+                                to="/login"
+                                className="text-indigo-600 hover:underline"
+                            >
+                                Sign in
                             </Link>
                         </p>
+
                     </form>
                 </CardContent>
             </Card>
         </div>
     )
 }
+

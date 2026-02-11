@@ -20,64 +20,75 @@ export default function Login() {
         e.preventDefault()
         dispatch(login({ username, password }))
             .unwrap()
-            .then(() => navigate("/dashboard"))
+            .then(() => navigate("/projects"))
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-background to-muted px-4">
-            <Card className="w-full max-w-sm shadow-lg">
-                <CardHeader className="space-y-1">
-                    <CardTitle className="text-2xl text-center">Welcome back</CardTitle>
-                    <p className="text-sm text-muted-foreground text-center">
-                        Sign in to continue
+        <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
+            <Card className="w-full max-w-md bg-white border border-slate-200 shadow-xl rounded-xl">
+
+                <CardHeader className="space-y-2 pb-6">
+                    <CardTitle className="text-2xl font-semibold text-center text-slate-800">
+                        Sign in
+                    </CardTitle>
+                    <p className="text-sm text-slate-500 text-center">
+                        Access your workspace
                     </p>
                 </CardHeader>
 
-
                 <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="space-y-1">
-                            <Label>Username</Label>
+                    <form onSubmit={handleSubmit} className="space-y-5">
+
+                        <div className="space-y-2">
+                            <Label className="text-slate-700">Username</Label>
                             <Input
                                 required
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
+                                className="border-slate-300 focus:ring-2 focus:ring-indigo-500"
                             />
                         </div>
 
-                        <div className="space-y-1">
-                            <Label>Password</Label>
+                        <div className="space-y-2">
+                            <Label className="text-slate-700">Password</Label>
                             <Input
                                 type="password"
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                                className="border-slate-300 focus:ring-2 focus:ring-indigo-500"
                             />
                         </div>
 
                         {error && (
-                            <p className="text-sm text-destructive text-center">
+                            <p className="text-sm text-red-500 text-center">
                                 {error}
                             </p>
                         )}
 
                         <Button
-                            className="w-full"
                             disabled={loading}
                             type="submit"
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-md"
                         >
-                            {loading ? "Logging in..." : "Login"}
+                            {loading ? "Signing in..." : "Sign In"}
                         </Button>
 
-                        <p className="text-sm text-center text-muted-foreground">
-                            Dont have an account?{" "}
-                            <Link to="/register" className="underline">
+                        <p className="text-sm text-center text-slate-500">
+                            Don’t have an account?{" "}
+                            <Link
+                                to="/register"
+                                className="text-indigo-600 hover:underline"
+                            >
                                 Register
                             </Link>
                         </p>
+
                     </form>
                 </CardContent>
             </Card>
         </div>
     )
 }
+
+
