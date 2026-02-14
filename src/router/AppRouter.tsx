@@ -5,8 +5,7 @@ import Login from "../pages/Login"
 import Register from "../pages/Register"
 import AuthLayout from "../layout/AuthLayout"
 import Dashboard from "../pages/Dashboard"
-import ProjectList from "../pages/ProjectList"
-
+import ProjectPage from "../pages/Project"
 
 export default function AppRouter() {
     const isAuth = useSelector(
@@ -29,7 +28,7 @@ export default function AppRouter() {
             <Route
                 element={isAuth ? <AuthLayout /> : <Navigate to="/login" />}
             >
-                <Route path="/projects" element={<ProjectList />} />
+                <Route path="/projects" element={<ProjectPage />} />
                 <Route path="/dashboard/:projectId" element={<Dashboard />} />
             </Route>
 
