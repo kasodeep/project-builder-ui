@@ -6,6 +6,7 @@ import Register from "../pages/Register"
 import AuthLayout from "../layout/AuthLayout"
 import Dashboard from "../pages/Dashboard"
 import ProjectPage from "../pages/Project"
+import Me from "../pages/Me"
 
 export default function AppRouter() {
     const isAuth = useSelector(
@@ -30,7 +31,9 @@ export default function AppRouter() {
             >
                 <Route path="/projects" element={<ProjectPage />} />
                 <Route path="/dashboard/:projectId" element={<Dashboard />} />
+                <Route path="/me" element={<Me />} />
             </Route>
+
 
 
             {/* Fallback */}
