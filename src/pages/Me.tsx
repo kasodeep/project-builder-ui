@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react"
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/card"
 import { Badge } from "../components/ui/badge"
 import { Button } from "../components/ui/button"
-import { cn } from "../lib/utils"
 import { fetchTaskForUser } from "../api/me.api"
 import { ArrowUp, Calendar, CheckCircle2, Flame } from "lucide-react"
 
@@ -11,16 +10,32 @@ type Task = {
     name: string
     priority: number
     end: string
-    status: string
+    status: "LOCKED" | "COMPLETED" | "PENDING" | "ACTIVE" | "ARCHIVED"
     assignees: string[]
     feature?: { name: string }
+}
+
+const statusVariant = (status: string) => {
+    switch (status) {
+        case "ACTIVE":
+            return "default"
+        case "PENDING":
+            return "secondary"
+        case "LOCKED":
+            return "destructive"
+        case "COMPLETED":
+            return "outline"
+        case "ARCHIVED":
+            return "outline"
+        default:
+            return "secondary"
+    }
 }
 
 export default function Me() {
     const [tasks, setTasks] = useState<Task[]>([])
     const [loading, setLoading] = useState(true)
 
-    // 🔹 Fetch tasks from backend
     useEffect(() => {
         const load = async () => {
             try {
@@ -36,7 +51,6 @@ export default function Me() {
         load()
     }, [])
 
-    // 🔹 Placeholder – you will implement backend integration
     const onComplete = (taskId: string) => {
         console.log("Complete task:", taskId)
     }
@@ -65,10 +79,17 @@ export default function Me() {
             eliminate: [] as Task[],
         }
 
-        tasks.forEach(task => {
-            const bucket = classifyTask(task)
-            buckets[bucket].push(task)
-        })
+        tasks
+            .filter(
+                t =>
+                    t.status !== "LOCKED" &&
+                    t.status !== "COMPLETED" &&
+                    t.status !== "ARCHIVED"
+            )
+            .forEach(task => {
+                const bucket = classifyTask(task)
+                buckets[bucket].push(task)
+            })
 
         return buckets
     }, [tasks])
@@ -78,7 +99,7 @@ export default function Me() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
             <div>
                 <h1 className="text-2xl font-bold tracking-tight">
                     My Tasks – Eisenhower Matrix
@@ -88,6 +109,7 @@ export default function Me() {
                 </p>
             </div>
 
+            {/* Matrix */}
             <div className="grid md:grid-cols-2 gap-6">
                 <QuadrantCard
                     title="Do First"
@@ -114,6 +136,20 @@ export default function Me() {
                     onComplete={onComplete}
                 />
             </div>
+
+            {/* Locked Tasks */}
+            <TaskListSection
+                title="Locked Tasks"
+                tasks={tasks.filter(t => t.status === "LOCKED")}
+            />
+
+            {/* Completed & Archived */}
+            <TaskListSection
+                title="Completed & Archived"
+                tasks={tasks.filter(
+                    t => t.status === "COMPLETED" || t.status === "ARCHIVED"
+                )}
+            />
         </div>
     )
 }
@@ -163,7 +199,7 @@ function QuadrantCard({
             </CardHeader>
 
             <CardContent className="px-4 pb-4">
-                <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                <div className="space-y-2 max-h-75 overflow-y-auto">
                     {tasks.length === 0 && (
                         <div className="text-xs text-muted-foreground py-6 text-center">
                             Nothing here
@@ -180,11 +216,21 @@ function QuadrantCard({
                             >
                                 <div className="flex justify-between items-start gap-3">
                                     <div className="space-y-1">
-                                        <p className="font-medium">
-                                            {task.name}
-                                        </p>
+                                        <div className="flex items-center gap-2">
+                                            <p className="font-medium">
+                                                {task.name}
+                                            </p>
 
-                                        {/* Meta row */}
+                                            <Badge
+                                                variant={
+                                                    statusVariant(task.status) as any
+                                                }
+                                                className="text-[10px] rounded-full"
+                                            >
+                                                {task.status}
+                                            </Badge>
+                                        </div>
+
                                         <div className="flex items-center gap-3 text-xs text-muted-foreground">
                                             <div className="flex items-center gap-1">
                                                 <Calendar size={14} />
@@ -192,15 +238,11 @@ function QuadrantCard({
                                             </div>
 
                                             {meta.urgent && (
-                                                <div className="flex items-center gap-1">
-                                                    <Flame size={14} />
-                                                </div>
+                                                <Flame size={14} />
                                             )}
 
                                             {meta.important && (
-                                                <div className="flex items-center gap-1">
-                                                    <ArrowUp size={14} />
-                                                </div>
+                                                <ArrowUp size={14} />
                                             )}
 
                                             {task.feature && (
@@ -232,4 +274,65 @@ function QuadrantCard({
     )
 }
 
+function TaskListSection({
+    title,
+    tasks,
+}: {
+    title: string
+    tasks: Task[]
+}) {
+    return (
+        <Card className="bg-card shadow-sm">
+            <CardHeader className="px-4 py-3">
+                <div className="flex justify-between items-center">
+                    <CardTitle className="text-sm font-semibold">
+                        {title}
+                    </CardTitle>
 
+                    <Badge variant="secondary" className="text-xs rounded-full">
+                        {tasks.length}
+                    </Badge>
+                </div>
+            </CardHeader>
+
+            <CardContent className="px-4 pb-4">
+                <div className="space-y-2 max-h-62.5 overflow-y-auto">
+                    {tasks.length === 0 && (
+                        <div className="text-xs text-muted-foreground py-4 text-center">
+                            Nothing here
+                        </div>
+                    )}
+
+                    {tasks.map(task => (
+                        <div
+                            key={task.id}
+                            className="p-3 rounded-lg border bg-muted/20 text-sm flex justify-between items-center"
+                        >
+                            <div className="flex items-center gap-2">
+                                <span>{task.name}</span>
+
+                                <Badge
+                                    variant={
+                                        statusVariant(task.status) as any
+                                    }
+                                    className="text-[10px] rounded-full"
+                                >
+                                    {task.status}
+                                </Badge>
+                            </div>
+
+                            {task.feature && (
+                                <Badge
+                                    variant="outline"
+                                    className="text-[10px]"
+                                >
+                                    {task.feature.name}
+                                </Badge>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </CardContent>
+        </Card>
+    )
+}
