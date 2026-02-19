@@ -1,24 +1,17 @@
 import { useNavigate } from "react-router-dom"
 import type { Project } from "../../types/project"
-
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
+import { Badge } from "../ui/badge"
 import { Button } from "../ui/button"
 import { Progress } from "../ui/progress"
-import { Badge } from "../ui/badge"
-import { Activity, ArrowUpRight, Calendar, Pencil } from "lucide-react"
-import { Separator } from "../ui/separator"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Avatar, AvatarFallback } from "../ui/avatar"
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
+import { Calendar, Pencil, Users, ArrowRight, Clock } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 
-function formatRelativeTime(dateString: string) {
-    const date = new Date(dateString)
-    const diff = Date.now() - date.getTime()
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-
-    if (days === 0) return "Today"
-    if (days === 1) return "Yesterday"
-    if (days < 7) return `${days} days ago`
-    return date.toLocaleDateString()
+const getStatusDetails = (progress: number) => {
+    if (progress === 100) return { label: "Completed", color: "bg-emerald-50 text-emerald-700 border-emerald-200" }
+    if (progress > 0) return { label: "In Progress" }
+    return { label: "Planned", color: "bg-slate-50 text-slate-600 border-slate-200" }
 }
 
 interface ProjectCardProps {
@@ -28,93 +21,114 @@ interface ProjectCardProps {
 
 const ProjectCard = ({ project, onEdit }: ProjectCardProps) => {
     const navigate = useNavigate()
+    const status = getStatusDetails(project.progress)
+
+    // for displaying the last updated date.
+    const lastUpdate = new Date(project.updatedAt).toLocaleDateString(undefined, {
+        month: 'short',
+        day: 'numeric'
+    })
 
     return (
-        <Card className="relative flex flex-col border-slate-200 bg-card hover:shadow-2xl transition-all duration-300 group">
-            <CardHeader className="px-5">
-                <div className="flex justify-between items-start">
-                    <Badge>
-                        {project.team?.name || "No Team"}
+        <Card className="group relative flex flex-col border-slate-200 bg-card hover:shadow-2xl transition-all duration-300 group">
+
+            {/* card-header */}
+            <CardHeader>
+                {/* status for the projects. */}
+                <div className="flex justify-between items-center mb-3">
+                    <Badge className={`${status.color} tracking-wider`}>
+                        {status.label}
                     </Badge>
+
+                    {/* edit button for project. */}
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-slate-400 hover:text-violet-600 hover:bg-violet-50 opacity-0 group-hover:opacity-100 transition-all"
+                        onClick={(e) => { e.stopPropagation(); onEdit(project); }}
+                    >
+                        <Pencil className="h-3.5 w-3.5" />
+                    </Button>
                 </div>
 
-                <CardTitle className="text-xl font-bold tracking-tight text-slate-900 mt-3">
+                {/* name of the project */}
+                <CardTitle className="text-lg font-bold leading-tight">
                     {project.name}
                 </CardTitle>
+
+                {/* team and last update date. */}
+                <div className="flex items-center justify-between">
+                    <p className="flex items-center gap-1.5 text-sm text-slate-500 font-medium">
+                        <Users className="h-3.5 w-3.5 text-slate-400" />
+                        {project.team?.name || "Independent"}
+                    </p>
+                    <div className="flex items-center gap-1 text-sm text-slate-500 font-medium">
+                        <Clock className="h-3 w-3" />
+                        {lastUpdate}
+                    </div>
+                </div>
+
             </CardHeader>
 
-            <CardContent className="px-6 pb-6 space-y-4">
-                <div className="space-y-3">
-                    <div className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2 text-slate-500">
-                            <Activity className="h-4 w-4" />
-                            <span>Completion</span>
-                        </div>
-                        <span className="font-bold tabular-nums text-slate-900">
-                            {project.progress}%
-                        </span>
+            <CardContent className="space-y-4">
+                {/* timeline with start and end, */}
+                <div className="flex items-center justify-between text-[12px] text-slate-500 bg-slate-50/50 p-2 rounded-lg border border-slate-100">
+                    <div className="flex items-center gap-1.5">
+                        <Calendar className="h-3.5 w-3.5 text-slate-400" />
+                        <span>{new Date(project.start).toLocaleDateString()}</span>
                     </div>
-                    <Progress value={project.progress} className="h-2 bg-slate-100" />
+
+                    <ArrowRight className="h-3 w-3" />
+
+                    <span className="font-medium text-slate-700">
+                        {new Date(project.end).toLocaleDateString()}
+                    </span>
                 </div>
 
-                <Separator className="bg-slate-100" />
+                {/* progress bar */}
+                <div className="space-y-2">
+                    <div className="flex justify-between text-[11px] font-bold uppercase tracking-tight">
+                        <span>Completion</span>
+                        <Badge>{project.progress}%</Badge>
+                    </div>
+                    <Progress value={project.progress} className="h-1.5 bg-slate-100" />
+                </div>
 
-                <div className="flex items-center justify-between">
+                {/* managers, owner and footer */}
+                <div className="flex items-center justify-between pt-3 border-t border-slate-100">
                     <div className="flex items-center gap-3">
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger>
-                                    <Avatar className="h-8 w-8 border border-white shadow-sm">
-                                        <AvatarFallback className="bg-slate-200 text-[10px] font-bold">
-                                            {project.owner.slice(0, 2).toUpperCase()}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    Owner: {project.owner}
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
+                        {/* managers avatar */}
+                        <div className="flex -space-x-2">
+                            {project.managers.slice(0, 3).map((m, i) => (
+                                <TooltipProvider key={i}>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Avatar className="h-7 w-7 border-2 border-white ring-1 ring-slate-100">
+                                                <AvatarFallback className="bg-slate-100 text-[10px] font-bold text-slate-600">
+                                                    {m.slice(0, 2).toUpperCase()}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                        </TooltipTrigger>
+                                        <TooltipContent><p className="text-xs">{m}</p></TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                            ))}
+                        </div>
 
+                        {/* owner */}
                         <div className="flex flex-col">
-                            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                                Owner
-                            </span>
-                            <span className="text-sm font-medium text-slate-700">
-                                {project.owner}
-                            </span>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase leading-none">Owner</span>
+                            <span className="text-xs font-semibold text-slate-700">{project.owner}</span>
                         </div>
                     </div>
 
-                    <div className="flex flex-col items-end">
-                        <div className="flex items-center gap-1.5 text-slate-400">
-                            <Calendar className="h-3 w-3" />
-                            <span className="text-[11px] font-bold uppercase tracking-wider">
-                                Updated
-                            </span>
-                        </div>
-                        <span className="text-sm font-medium text-slate-700">
-                            {formatRelativeTime(project.updatedAt)}
-                        </span>
-                    </div>
-                </div>
-
-                <div className="flex gap-2 pt-2">
                     <Button
-                        className="flex-1 bg-slate-900 text-white hover:bg-slate-800 rounded-xl font-semibold group/btn"
+                        size="sm"
+                        variant="ghost"
+                        className="font-bold text-xs h-8 px-3 rounded-md transition-colors"
                         onClick={() => navigate(`/dashboard/${project.id}`)}
                     >
-                        View Workspace
-                        <ArrowUpRight className="ml-2 h-4 w-4 opacity-50 group-hover/btn:opacity-100 group-hover/btn:translate-x-0.5 transition-all" />
-                    </Button>
-
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        className="rounded-xl border-slate-200 hover:bg-slate-50"
-                        onClick={() => onEdit(project)}
-                    >
-                        <Pencil className="h-4 w-4" />
+                        Dashboard
                     </Button>
                 </div>
             </CardContent>
