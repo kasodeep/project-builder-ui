@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback } from "../ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 import { Calendar, Pencil, Users, ArrowRight, Clock } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
+import { formatDate } from "../../util/helper"
 
 const getStatusDetails = (progress: number) => {
     if (progress === 100) return { label: "Completed", color: "bg-emerald-50 text-emerald-700 border-emerald-200" }
@@ -22,12 +23,6 @@ interface ProjectCardProps {
 const ProjectCard = ({ project, onEdit }: ProjectCardProps) => {
     const navigate = useNavigate()
     const status = getStatusDetails(project.progress)
-
-    // for displaying the last updated date.
-    const lastUpdate = new Date(project.updatedAt).toLocaleDateString(undefined, {
-        month: 'short',
-        day: 'numeric'
-    })
 
     return (
         <Card className="group relative flex flex-col border-slate-200 bg-card hover:shadow-2xl transition-all duration-300 group">
@@ -64,7 +59,7 @@ const ProjectCard = ({ project, onEdit }: ProjectCardProps) => {
                     </p>
                     <div className="flex items-center gap-1 text-sm text-slate-500 font-medium">
                         <Clock className="h-3 w-3" />
-                        {lastUpdate}
+                        {formatDate(project.updatedAt)}
                     </div>
                 </div>
 

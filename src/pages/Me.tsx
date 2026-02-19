@@ -1,338 +1,101 @@
 import { useEffect, useMemo, useState } from "react"
-import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/card"
-import { Badge } from "../components/ui/badge"
-import { Button } from "../components/ui/button"
 import { fetchTaskForUser } from "../api/me.api"
-import { ArrowUp, Calendar, CheckCircle2, Flame } from "lucide-react"
+import { EisenhowerMatrix } from "../components/me/EisenhowerMatrix"
+import { TaskCard } from "../components/me/TaskCard"
+import { Status, type Task } from "../types/task"
+import { Spinner } from "../components/ui/spinner"
 
-type Task = {
-    id: string
-    name: string
-    priority: number
-    end: string
-    status: "LOCKED" | "COMPLETED" | "PENDING" | "ACTIVE" | "ARCHIVED"
-    assignees: string[]
-    feature?: { name: string }
-}
-
-const statusVariant = (status: string) => {
-    switch (status) {
-        case "ACTIVE":
-            return "default"
-        case "PENDING":
-            return "secondary"
-        case "LOCKED":
-            return "destructive"
-        case "COMPLETED":
-            return "outline"
-        case "ARCHIVED":
-            return "outline"
-        default:
-            return "secondary"
-    }
-}
+export const URGENT_PRIORITY = 4
+const URGENT_DATE = 5
 
 export default function Me() {
     const [tasks, setTasks] = useState<Task[]>([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        const load = async () => {
-            try {
-                const data = await fetchTaskForUser()
-                setTasks(data)
-            } catch (err) {
-                console.error("Failed to fetch user tasks", err)
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        load()
+        fetchTaskForUser()
+            .then(setTasks)
+            .finally(() => setLoading(false))
     }, [])
 
     const onComplete = (taskId: string) => {
-        console.log("Complete task:", taskId)
+        console.log("Completing:", taskId)
     }
 
-    const today = new Date()
-
-    const classifyTask = (task: Task) => {
-        const due = new Date(task.end)
-        const daysLeft =
-            (due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-
-        const urgent = daysLeft <= 3
-        const important = task.priority >= 4
-
-        if (urgent && important) return "do"
-        if (!urgent && important) return "schedule"
-        if (urgent && !important) return "delegate"
-        return "eliminate"
-    }
-
+    // Active tasks for quadrants
     const quadrants = useMemo(() => {
-        const buckets = {
-            do: [] as Task[],
-            schedule: [] as Task[],
-            delegate: [] as Task[],
-            eliminate: [] as Task[],
-        }
+        const buckets = { do: [], schedule: [], delegate: [], eliminate: [] } as Record<string, Task[]>
+        const activeTasks = tasks.filter(t => t.status === Status.ACTIVE || t.status === Status.PENDING)
 
-        tasks
-            .filter(
-                t =>
-                    t.status !== "LOCKED" &&
-                    t.status !== "COMPLETED" &&
-                    t.status !== "ARCHIVED"
-            )
-            .forEach(task => {
-                const bucket = classifyTask(task)
-                buckets[bucket].push(task)
-            })
+        activeTasks.forEach(task => {
+            const due = task.end ? new Date(task.end) : null
+            const isUrgent = due ? (due.getTime() - Date.now()) / (1000 * 60 * 60 * 24) <= URGENT_DATE : false
+            const isImportant = (task.priority ?? 0) >= URGENT_PRIORITY
 
+            if (isUrgent && isImportant) buckets.do.push(task)
+            else if (!isUrgent && isImportant) buckets.schedule.push(task)
+            else if (isUrgent && !isImportant) buckets.delegate.push(task)
+            else buckets.eliminate.push(task)
+        })
         return buckets
     }, [tasks])
 
-    if (loading) {
-        return <div className="p-6">Loading tasks...</div>
-    }
+    // Completed and Locked tasks
+    const completedTasks = useMemo(() => tasks.filter(t => t.status === Status.COMPLETED), [tasks])
+    const lockedTasks = useMemo(() => tasks.filter(t => t.status === Status.LOCKED), [tasks])
 
     return (
-        <div className="space-y-8">
-            <div>
-                <h1 className="text-2xl font-bold tracking-tight">
-                    My Tasks – Eisenhower Matrix
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                    Prioritized by urgency (due date) and importance (priority).
-                </p>
-            </div>
+        <div className="space-y-6">
+            <header className="flex flex-col gap-1">
+                <h1 className="text-xl font-bold tracking-tight text-slate-900">Personal Dashboard</h1>
+                <p className="text-slate-500 font-medium">Manage your workload and focus on what matters.</p>
+            </header>
 
-            {/* Matrix */}
-            <div className="grid md:grid-cols-2 gap-6">
-                <QuadrantCard
-                    title="Do First"
-                    description="Urgent & Important"
-                    tasks={quadrants.do}
-                    onComplete={onComplete}
-                />
-                <QuadrantCard
-                    title="Schedule"
-                    description="Not Urgent but Important"
-                    tasks={quadrants.schedule}
-                    onComplete={onComplete}
-                />
-                <QuadrantCard
-                    title="Delegate"
-                    description="Urgent but Not Important"
-                    tasks={quadrants.delegate}
-                    onComplete={onComplete}
-                />
-                <QuadrantCard
-                    title="Eliminate"
-                    description="Not Urgent & Not Important"
-                    tasks={quadrants.eliminate}
-                    onComplete={onComplete}
-                />
-            </div>
+            {loading ? (
+                <Spinner className="h-10 w-10" />
+            ) : (
+                <>
+                    {/* matrix for active tasks */}
+                    <section>
+                        <EisenhowerMatrix tasks={quadrants} onComplete={onComplete} />
+                    </section>
 
-            {/* Locked Tasks */}
-            <TaskListSection
-                title="Locked Tasks"
-                tasks={tasks.filter(t => t.status === "LOCKED")}
-            />
-
-            {/* Completed & Archived */}
-            <TaskListSection
-                title="Completed & Archived"
-                tasks={tasks.filter(
-                    t => t.status === "COMPLETED" || t.status === "ARCHIVED"
-                )}
-            />
-        </div>
-    )
-}
-
-function QuadrantCard({
-    title,
-    description,
-    tasks,
-    onComplete,
-}: {
-    title: string
-    description: string
-    tasks: Task[]
-    onComplete: (id: string) => void
-}) {
-    const today = new Date()
-
-    const getMeta = (task: Task) => {
-        const due = new Date(task.end)
-        const daysLeft =
-            (due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-
-        return {
-            urgent: daysLeft <= 3,
-            important: task.priority >= 4,
-            daysLeft: Math.ceil(daysLeft),
-        }
-    }
-
-    return (
-        <Card className="flex flex-col bg-card shadow-sm">
-            <CardHeader className="px-4 py-3">
-                <div className="flex justify-between items-center">
-                    <div>
-                        <CardTitle className="text-sm font-semibold">
-                            {title}
-                        </CardTitle>
-                        <p className="text-xs text-muted-foreground">
-                            {description}
-                        </p>
-                    </div>
-
-                    <Badge variant="secondary" className="text-xs rounded-full">
-                        {tasks.length}
-                    </Badge>
-                </div>
-            </CardHeader>
-
-            <CardContent className="px-4 pb-4">
-                <div className="space-y-2 max-h-75 overflow-y-auto">
-                    {tasks.length === 0 && (
-                        <div className="text-xs text-muted-foreground py-6 text-center">
-                            Nothing here
-                        </div>
-                    )}
-
-                    {tasks.map(task => {
-                        const meta = getMeta(task)
-
-                        return (
-                            <div
-                                key={task.id}
-                                className="p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition text-sm"
-                            >
-                                <div className="flex justify-between items-start gap-3">
-                                    <div className="space-y-1">
-                                        <div className="flex items-center gap-2">
-                                            <p className="font-medium">
-                                                {task.name}
-                                            </p>
-
-                                            <Badge
-                                                variant={
-                                                    statusVariant(task.status) as any
-                                                }
-                                                className="text-[10px] rounded-full"
-                                            >
-                                                {task.status}
-                                            </Badge>
+                    {/* bottom sections: completed & locked side by side */}
+                    <section className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
+                        {/* Completed Tasks */}
+                        <div>
+                            <h2 className="text-lg font-bold text-slate-800 mb-4">Completed Recently</h2>
+                            {completedTasks.length === 0 ? (
+                                <p className="text-sm text-slate-500 italic">No tasks completed recently.</p>
+                            ) : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {completedTasks.map(task => (
+                                        <div key={task.id} className="opacity-60 grayscale-[0.5]">
+                                            <TaskCard task={task} onComplete={onComplete} />
                                         </div>
-
-                                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                                            <div className="flex items-center gap-1">
-                                                <Calendar size={14} />
-                                                {meta.daysLeft}d
-                                            </div>
-
-                                            {meta.urgent && (
-                                                <Flame size={14} />
-                                            )}
-
-                                            {meta.important && (
-                                                <ArrowUp size={14} />
-                                            )}
-
-                                            {task.feature && (
-                                                <Badge
-                                                    variant="outline"
-                                                    className="text-[10px]"
-                                                >
-                                                    {task.feature.name}
-                                                </Badge>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <Button
-                                        size="icon"
-                                        variant="ghost"
-                                        className="h-8 w-8"
-                                        onClick={() => onComplete(task.id)}
-                                    >
-                                        <CheckCircle2 size={16} />
-                                    </Button>
+                                    ))}
                                 </div>
-                            </div>
-                        )
-                    })}
-                </div>
-            </CardContent>
-        </Card>
-    )
-}
-
-function TaskListSection({
-    title,
-    tasks,
-}: {
-    title: string
-    tasks: Task[]
-}) {
-    return (
-        <Card className="bg-card shadow-sm">
-            <CardHeader className="px-4 py-3">
-                <div className="flex justify-between items-center">
-                    <CardTitle className="text-sm font-semibold">
-                        {title}
-                    </CardTitle>
-
-                    <Badge variant="secondary" className="text-xs rounded-full">
-                        {tasks.length}
-                    </Badge>
-                </div>
-            </CardHeader>
-
-            <CardContent className="px-4 pb-4">
-                <div className="space-y-2 max-h-62.5 overflow-y-auto">
-                    {tasks.length === 0 && (
-                        <div className="text-xs text-muted-foreground py-4 text-center">
-                            Nothing here
-                        </div>
-                    )}
-
-                    {tasks.map(task => (
-                        <div
-                            key={task.id}
-                            className="p-3 rounded-lg border bg-muted/20 text-sm flex justify-between items-center"
-                        >
-                            <div className="flex items-center gap-2">
-                                <span>{task.name}</span>
-
-                                <Badge
-                                    variant={
-                                        statusVariant(task.status) as any
-                                    }
-                                    className="text-[10px] rounded-full"
-                                >
-                                    {task.status}
-                                </Badge>
-                            </div>
-
-                            {task.feature && (
-                                <Badge
-                                    variant="outline"
-                                    className="text-[10px]"
-                                >
-                                    {task.feature.name}
-                                </Badge>
                             )}
                         </div>
-                    ))}
-                </div>
-            </CardContent>
-        </Card>
+
+                        {/* Locked Tasks */}
+                        <div>
+                            <h2 className="text-lg font-bold text-slate-800 mb-4">Locked Tasks</h2>
+                            {lockedTasks.length === 0 ? (
+                                <p className="text-sm text-slate-500 italic">No locked tasks.</p>
+                            ) : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {lockedTasks.map(task => (
+                                        <div key={task.id} className="opacity-50 grayscale-[0.7]">
+                                            <TaskCard task={task} onComplete={onComplete} />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </section>
+                </>
+            )}
+        </div>
     )
 }
