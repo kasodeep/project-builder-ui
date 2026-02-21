@@ -1,12 +1,25 @@
-import axios from "axios"
 import type { UserRegisterRequest } from "../types/auth"
+import type { UserDto } from "../types/user"
+import publicApi from "./public.axios"
 
-const AUTH_BASE = "http://localhost:8080/api/v1/auth"
-
+/**
+ * POST /api/v1/auth/login
+ */
 export const loginApi = async (username: string, password: string) => {
-    await axios.post(`${AUTH_BASE}/login`, { username, password })
+    return publicApi.post("/auth/login", { username, password })
 }
 
+/**
+ * POST /api/v1/auth/register
+ */
 export const registerApi = async (payload: UserRegisterRequest) => {
-    await axios.post(`${AUTH_BASE}/register`, payload)
+    return publicApi.post("/auth/register", payload)
+}
+
+/**
+ * GET /api/v1/auth/all/{teamId}
+ */
+export const fetchUsersByTeam = async (teamId: string): Promise<UserDto[]> => {
+    const res = await publicApi.get(`/auth/all/${teamId}`)
+    return res.data
 }

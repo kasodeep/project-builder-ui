@@ -3,6 +3,14 @@ export type Feature = {
     name: string
 }
 
+export enum Status {
+    LOCKED = "LOCKED",
+    PENDING = "PENDING",
+    ACTIVE = "ACTIVE",
+    COMPLETED = "COMPLETED",
+    ARCHIVED = "ARCHIVED"
+}
+
 export type Task = {
     id: string
     projectId: string | null
@@ -11,7 +19,7 @@ export type Task = {
     feature: Feature
     dependencies: string[]
     priority: number | null
-    status: string | null
+    status: Status | null
     start: string | null
     end: string | null
     updatedBy: string | null
