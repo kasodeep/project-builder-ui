@@ -4,6 +4,7 @@ import { EisenhowerMatrix } from "@/components/me/EisenhowerMatrix"
 import { TaskCard } from "@/components/me/TaskCard"
 import { Status, type Task } from "@/types/task"
 import { Spinner } from "@/components/ui/spinner"
+import { taskCompleteApi } from "@/api/task.api"
 
 export const URGENT_PRIORITY = 4
 const URGENT_DATE = 5
@@ -18,8 +19,8 @@ export default function Me() {
             .finally(() => setLoading(false))
     }, [])
 
-    const onComplete = (taskId: string) => {
-        console.log("Completing:", taskId)
+    const onComplete = async (taskId: string) => {
+        await taskCompleteApi(taskId)
     }
 
     // Active tasks for quadrants
