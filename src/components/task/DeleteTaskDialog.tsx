@@ -23,7 +23,7 @@ function DeleteTaskDialog({ task, onDelete }: { task: Task; onDelete: (id: strin
                     <AlertDialogAction
                         onClick={() => onDelete(task.id)}
                         className="bg-red-600 hover:bg-red-700"
-                        size="default" variant="medium">
+                        size="default" variant="destructive">
                         Delete
                     </AlertDialogAction>
                 </AlertDialogFooter>
