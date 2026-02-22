@@ -16,7 +16,7 @@ type Props = {
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const STATUS_COLORS: Record<string, string> = {
+export const STATUS_COLORS: Record<string, string> = {
     LOCKED: "bg-slate-100 text-slate-600 border-slate-200",
     PENDING: "bg-amber-50 text-amber-700 border-amber-200",
     ACTIVE: "bg-blue-50 text-blue-700 border-blue-200",

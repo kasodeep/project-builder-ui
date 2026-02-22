@@ -100,8 +100,8 @@ export const updateTask = createAsyncThunk<void, UpdateTaskInput & { projectId: 
         try {
             const { projectId, ...payload } = data
             await secureApi.put("/task/update", payload)
-            dispatch(fetchTaskById(data.id))
             dispatch(fetchTasksForProject(projectId))
+            dispatch(fetchTaskById(data.id))
         } catch (err) {
             return rejectWithValue(extractErrorMessage(err))
         }
