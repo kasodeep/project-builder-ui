@@ -1,7 +1,7 @@
-import type { Task } from "../../types/task"
+import type { Task } from "@/types/task"
 import { TaskCard } from "./TaskCard"
-import { Badge } from "../ui/badge"
-import { Card, CardHeader, CardTitle } from "../ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface QuadrantProps {
     title: string

@@ -1,4 +1,4 @@
-import type { Project } from "../../types/project"
+import type { Project } from "@/types/project"
 import ProjectCard from "./ProjectCard"
 
 interface Props {

@@ -1,16 +1,16 @@
 import { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import type { RootState, AppDispatch } from "../store"
+import type { RootState, AppDispatch } from "@/store"
 import {
     fetchProjects,
     openCreateSidebar,
     openEditSidebar
-} from "../store/project.slice"
+} from "@/store/project.slice"
 
-import { Button } from "../components/ui/button"
-import ProjectList from "../components/project/ProjectList"
-import ProjectSidebar from "../components/project/ProjectSidebar"
-import ProjectCardSkeleton from "../components/project/ProjectCardSkeleton"
+import { Button } from "@/components/ui/button"
+import ProjectList from "@/components/project/ProjectList"
+import ProjectSidebar from "@/components/project/ProjectSidebar"
+import ProjectCardSkeleton from "@/components/project/ProjectCardSkeleton"
 
 const ProjectPage = () => {
     const dispatch = useDispatch<AppDispatch>()

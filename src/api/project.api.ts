@@ -1,4 +1,4 @@
-import type { CreateProjectInput, UpdateProjectInput } from "../schema/project.schema"
+import type { CreateProjectInput, UpdateProjectInput } from "@/schema/project.schema"
 import secureApi from "./secure.axios"
 
 export const fetchProjectsApi = async () => {

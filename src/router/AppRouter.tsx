@@ -1,12 +1,12 @@
 import { Navigate, Route, Routes } from "react-router-dom"
 import { useSelector } from "react-redux"
-import type { RootState } from "../store"
-import Login from "../pages/Login"
-import Register from "../pages/Register"
-import AuthLayout from "../layout/AuthLayout"
-import Dashboard from "../pages/Dashboard"
-import ProjectPage from "../pages/Project"
-import Me from "../pages/Me"
+import type { RootState } from "@/store"
+import Login from "@/pages/Login"
+import Register from "@/pages/Register"
+import AuthLayout from "@/layout/AuthLayout"
+import Dashboard from "@/pages/Dashboard"
+import ProjectPage from "@/pages/Project"
+import Me from "@/pages/Me"
 
 export default function AppRouter() {
     const isAuth = useSelector(

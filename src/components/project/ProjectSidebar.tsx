@@ -1,11 +1,11 @@
 import { useDispatch, useSelector } from "react-redux"
-import type { RootState, AppDispatch } from "../../store"
-import { closeSidebar, createProject, updateProject } from "../../store/project.slice"
+import type { RootState, AppDispatch } from "@/store"
+import { closeSidebar, createProject, updateProject } from "@/store/project.slice"
 import ProjectForm from "./ProjectForm"
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from "../../components/ui/drawer"
-import { Button } from "../ui/button"
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from "@/components/ui/drawer"
+import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
-import type { CreateProjectInput, UpdateProjectInput } from "../../schema/project.schema"
+import type { CreateProjectInput, UpdateProjectInput } from "@/schema/project.schema"
 
 const ProjectSidebar = () => {
     const dispatch = useDispatch<AppDispatch>()

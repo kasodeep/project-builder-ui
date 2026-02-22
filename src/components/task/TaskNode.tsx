@@ -1,5 +1,5 @@
 import { Handle, Position } from "reactflow"
-import type { Status } from "../../types/task"
+import type { Status } from "@/types/task"
 import { BoxIcon, CheckIcon, CloudLightningIcon, LockIcon, TimerIcon } from "lucide-react"
 
 const STATUS_STYLES: Record<string, {

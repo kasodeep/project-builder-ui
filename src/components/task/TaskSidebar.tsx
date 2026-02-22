@@ -2,30 +2,30 @@ import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import type { RootState, AppDispatch } from "../../store"
+import type { RootState, AppDispatch } from "@/store"
 import {
     closeSidebar, createTask, updateTask,
     updateAssignees, updateDependencies,
     fetchFeatures, fetchTeamUsers,
     fetchTasksForProject,
-} from "../../store/task.slice"
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
-import { Label } from "../ui/label"
+} from "@/store/task.slice"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "../ui/select"
-import { Badge } from "../ui/badge"
+} from "@/components/ui/select"
+import { Badge } from "@/components/ui/badge"
 import { X, Loader2, UserCircle, GitBranch, Settings2 } from "lucide-react"
-import { Status } from "../../types/task"
-import type { Feature, Task } from "../../types/task"
-import type { UserDto } from "../../types/user"
+import { Status } from "@/types/task"
+import type { Feature, Task } from "@/types/task"
+import type { UserDto } from "@/types/user"
 import { useParams } from "react-router-dom"
-import { cn } from "../../lib/utils"
+import { cn } from "@/lib/utils"
 import {
     createTaskSchema, updateTaskSchema,
     type CreateTaskInput, type UpdateTaskInput,
-} from "../../schema/task.schema"
+} from "@/schema/task.schema"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Tab = "basic" | "assignees" | "dependencies"

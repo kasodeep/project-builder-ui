@@ -1,13 +1,13 @@
 import { useNavigate } from "react-router-dom"
-import type { Project } from "../../types/project"
-import { Badge } from "../ui/badge"
-import { Button } from "../ui/button"
-import { Progress } from "../ui/progress"
-import { Avatar, AvatarFallback } from "../ui/avatar"
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
+import type { Project } from "@/types/project"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Calendar, Pencil, Users, ArrowRight, Clock } from "lucide-react"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
-import { formatDate } from "../../util/helper"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { formatDate } from "@/util/helper"
 
 const getStatusDetails = (progress: number) => {
     if (progress === 100) return { label: "Completed", color: "bg-emerald-50 text-emerald-700 border-emerald-200" }

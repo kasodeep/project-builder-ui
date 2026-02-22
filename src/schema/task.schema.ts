@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { Status } from "../types/task"
+import { Status } from "@/types/task"
 
 export const taskBaseSchema = z.object({
     name: z.string().min(1, "Task name is required").max(120, "Name is too long"),

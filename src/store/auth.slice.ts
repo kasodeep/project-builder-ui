@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
-import { loginApi, registerApi } from "../api/auth.api"
-import type { AuthState, UserRegisterRequest } from "../types/auth"
+import { loginApi, registerApi } from "@/api/auth.api"
+import type { AuthState, UserRegisterRequest } from "@/types/auth"
 
 const encodeBasic = (u: string, p: string) => btoa(`${u}:${p}`)
 

@@ -1,8 +1,8 @@
 import { Outlet, NavLink, useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
-import { Button } from "../components/ui/button"
-import type { AppDispatch, RootState } from "../store"
-import { logout } from "../store/auth.slice"
+import { Button } from "@/components/ui/button"
+import type { AppDispatch, RootState } from "@/store"
+import { logout } from "@/store/auth.slice"
 
 export default function AuthLayout() {
     const dispatch = useDispatch<AppDispatch>()

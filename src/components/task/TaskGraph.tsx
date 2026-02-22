@@ -8,9 +8,9 @@ import ReactFlow, {
     MarkerType,
 } from "reactflow"
 import "reactflow/dist/style.css"
-import { layoutGraph } from "../../util/layout"
+import { layoutGraph } from "@/util/layout"
 import TaskNode from "./TaskNode"
-import type { Task } from "../../types/task"
+import type { Task } from "@/types/task"
 
 type Props = {
     tasks: Task[]

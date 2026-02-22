@@ -1,8 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
-import { createProjectApi, fetchProjectsApi, updateProjectApi } from "../api/project.api"
-import type { Project } from "../types/project"
-import type { CreateProjectInput, UpdateProjectInput } from "../schema/project.schema"
-import { extractErrorMessage } from "../util/error"
+import { createProjectApi, fetchProjectsApi, updateProjectApi } from "@/api/project.api"
+import type { Project } from "@/types/project"
+import type { CreateProjectInput, UpdateProjectInput } from "@/schema/project.schema"
+import { extractErrorMessage } from "@/util/error"
 import { toast } from "sonner"
 
 type Status = "idle" | "loading" | "succeeded" | "failed"

@@ -1,4 +1,4 @@
-import type { Team } from "../types/team"
+import type { Team } from "@/types/team"
 import publicApi from "./public.axios"
 
 export const fetchAllTeams = async (): Promise<Team[]> => {

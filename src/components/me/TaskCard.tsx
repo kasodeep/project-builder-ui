@@ -1,11 +1,11 @@
-import type { Task } from "../../types/task"
+import type { Task } from "@/types/task"
 import { Calendar, CheckCircle2, ArrowUpCircle, PlayCircle, CheckSquare, Tag } from "lucide-react"
-import { Badge } from "../ui/badge"
-import { Button } from "../ui/button"
-import { cn } from "../../lib/utils"
-import { Separator } from "../ui/separator"
-import { formatDate } from "../../util/helper"
-import { URGENT_PRIORITY } from "../../pages/Me"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+import { Separator } from "@/components/ui/separator"
+import { formatDate } from "@/util/helper"
+import { URGENT_PRIORITY } from "@/pages/Me"
 
 interface TaskCardProps {
     task: Task

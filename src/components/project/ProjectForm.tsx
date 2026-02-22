@@ -1,16 +1,16 @@
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import type { Project } from "../../types/project"
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
-import { Label } from "../ui/label"
+import type { Project } from "@/types/project"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
     createProjectSchema,
     updateProjectSchema,
     type CreateProjectInput,
     type UpdateProjectInput
-} from "../../schema/project.schema"
+} from "@/schema/project.schema"
 
 interface ProjectFormProps {
     initialData?: Project | null

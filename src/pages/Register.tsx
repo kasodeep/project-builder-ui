@@ -5,16 +5,16 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 
-import type { AppDispatch, RootState } from "../store"
-import type { Team } from "../types/team"
-import { fetchAllTeams } from "../api/team.api"
-import { register as registerUser } from "../store/auth.slice"
+import type { AppDispatch, RootState } from "@/store"
+import type { Team } from "@/types/team"
+import { fetchAllTeams } from "@/api/team.api"
+import { register as registerUser } from "@/store/auth.slice"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
-import { Input } from "../components/ui/input"
-import { Button } from "../components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
-import { Field, FieldLabel, FieldDescription } from "../components/ui/field"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Field, FieldLabel, FieldDescription } from "@/components/ui/field"
 
 // Validation schema using Zod
 const registerSchema = z.object({

@@ -1,12 +1,12 @@
 import { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import type { RootState, AppDispatch } from "../store"
-import { fetchTaskById, fetchTasksForProject, openCreateSidebar } from "../store/task.slice"
-import TaskGraph from "../components/task/TaskGraph"
-import TaskDetails from "../components/task/TaskDetails"
-import TaskSidebar from "../components/task/TaskSidebar"
+import type { RootState, AppDispatch } from "@/store"
+import { fetchTaskById, fetchTasksForProject, openCreateSidebar } from "@/store/task.slice"
+import TaskGraph from "@/components/task/TaskGraph"
+import TaskDetails from "@/components/task/TaskDetails"
+import TaskSidebar from "@/components/task/TaskSidebar"
 import { useParams } from "react-router-dom"
-import { Button } from "../components/ui/button"
+import { Button } from "@/components/ui/button"
 import { Plus, AlertCircle, RefreshCw } from "lucide-react"
 
 export default function Dashboard() {

@@ -1,4 +1,4 @@
-import type { Feature } from "../types/task"
+import type { Feature } from "@/types/task"
 import publicApi from "./public.axios"
 
 export const fetchAllFeatures = async (): Promise<Feature[]> => {

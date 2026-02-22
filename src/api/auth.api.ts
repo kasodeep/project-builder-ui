@@ -1,5 +1,5 @@
-import type { UserRegisterRequest } from "../types/auth"
-import type { UserDto } from "../types/user"
+import type { UserRegisterRequest } from "@/types/auth"
+import type { UserDto } from "@/types/user"
 import publicApi from "./public.axios"
 
 /**

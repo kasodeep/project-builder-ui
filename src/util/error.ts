@@ -1,5 +1,5 @@
 import axios from "axios"
-import type { ErrorResponse } from "../types/error"
+import type { ErrorResponse } from "@/types/error"
 
 export function extractErrorMessage(err: unknown): string {
     if (axios.isAxiosError(err)) {

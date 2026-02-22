@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react"
-import { fetchTaskForUser } from "../api/me.api"
-import { EisenhowerMatrix } from "../components/me/EisenhowerMatrix"
-import { TaskCard } from "../components/me/TaskCard"
-import { Status, type Task } from "../types/task"
-import { Spinner } from "../components/ui/spinner"
+import { fetchTaskForUser } from "@/api/me.api"
+import { EisenhowerMatrix } from "@/components/me/EisenhowerMatrix"
+import { TaskCard } from "@/components/me/TaskCard"
+import { Status, type Task } from "@/types/task"
+import { Spinner } from "@/components/ui/spinner"
 
 export const URGENT_PRIORITY = 4
 const URGENT_DATE = 5
