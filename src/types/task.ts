@@ -3,13 +3,7 @@ export type Feature = {
     name: string
 }
 
-export enum Status {
-    LOCKED = "LOCKED",
-    PENDING = "PENDING",
-    ACTIVE = "ACTIVE",
-    COMPLETED = "COMPLETED",
-    ARCHIVED = "ARCHIVED"
-}
+export type Status = "LOCKED" | "PENDING" | "ACTIVE" | "COMPLETED" | "ARCHIVED"
 
 export type Task = {
     id: string
