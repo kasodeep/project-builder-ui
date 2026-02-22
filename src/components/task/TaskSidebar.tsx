@@ -7,6 +7,7 @@ import {
     closeSidebar, createTask, updateTask,
     updateAssignees, updateDependencies,
     fetchFeatures, fetchTeamUsers,
+    fetchTasksForProject,
 } from "../../store/task.slice"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
@@ -356,6 +357,8 @@ export default function TaskSidebar() {
         setDepSaving(true)
         await dispatch(updateDependencies({ taskId: editingTask.id, dependencies }))
         setDepSaving(false)
+
+        if (projectId) dispatch(fetchTasksForProject(projectId))
     }
 
     // helpers for frontend.
