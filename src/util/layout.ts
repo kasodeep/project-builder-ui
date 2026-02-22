@@ -1,5 +1,5 @@
 import dagre from "dagre"
-import type { Node, Edge } from "reactflow"
+import { type Node, type Edge, Position } from "reactflow"
 
 const nodeSize = 120 // circular node diameter
 
@@ -33,8 +33,8 @@ export function layoutGraph(nodes: Node[], edges: Edge[]) {
                 x: n.x - nodeSize / 2,
                 y: n.y - nodeSize / 2,
             },
-            sourcePosition: "right" as const,
-            targetPosition: "left" as const,
+            sourcePosition: Position.Right,
+            targetPosition: Position.Left
         }
     })
 
