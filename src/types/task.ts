@@ -3,7 +3,15 @@ export type Feature = {
     name: string
 }
 
-export type Status = "LOCKED" | "PENDING" | "ACTIVE" | "COMPLETED" | "ARCHIVED"
+export const Status = {
+    LOCKED: "LOCKED",
+    PENDING: "PENDING",
+    ACTIVE: "ACTIVE",
+    COMPLETED: "COMPLETED",
+    ARCHIVED: "ARCHIVED"
+} as const
+
+export type Status = typeof Status[keyof typeof Status]
 
 export type Task = {
     id: string
