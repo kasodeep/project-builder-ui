@@ -11,13 +11,15 @@ const ProjectSidebar = () => {
     const dispatch = useDispatch<AppDispatch>()
     const { sidebarOpen, editingProject } = useSelector((s: RootState) => s.project)
 
-    // submit func for create/update.
     const handleSubmit = async (data: CreateProjectInput | UpdateProjectInput) => {
         try {
             if (editingProject) {
-                await dispatch(updateProject(data as UpdateProjectInput)).unwrap();
+                // version is injected by ProjectForm via initialData — it must
+                // be present in UpdateProjectInput so the backend can do the
+                // optimistic lock check.
+                await dispatch(updateProject(data as UpdateProjectInput)).unwrap()
             } else {
-                await dispatch(createProject(data as CreateProjectInput)).unwrap();
+                await dispatch(createProject(data as CreateProjectInput)).unwrap()
             }
             dispatch(closeSidebar());
         } catch (error) {
@@ -39,11 +41,12 @@ const ProjectSidebar = () => {
                             {editingProject ? "Edit Project" : "New Project"}
                         </DrawerTitle>
                         <p className="text-xs text-slate-500 font-medium mt-1">
-                            {editingProject ? "Update your project workspace" : "Get started with a new workspace"}
+                            {editingProject
+                                ? "Update your project workspace"
+                                : "Get started with a new workspace"}
                         </p>
                     </div>
 
-                    {/* close button */}
                     <DrawerClose asChild>
                         <Button variant="ghost" size="icon" className="rounded-full hover:bg-slate-100">
                             <X className="h-5 w-5 text-slate-400" />

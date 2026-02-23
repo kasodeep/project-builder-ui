@@ -27,6 +27,7 @@ const ProjectForm = ({ initialData, onSubmit, onCancel }: ProjectFormProps) => {
         defaultValues: isEdit
             ? {
                 projectId: initialData!.id,
+                version: initialData!.version,
                 name: initialData!.name,
                 start: initialData!.start,
                 end: initialData!.end
@@ -40,6 +41,7 @@ const ProjectForm = ({ initialData, onSubmit, onCancel }: ProjectFormProps) => {
         if (initialData) {
             reset({
                 projectId: initialData.id,
+                version: initialData.version,
                 name: initialData.name,
                 start: initialData.start,
                 end: initialData.end

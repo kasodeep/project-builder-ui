@@ -11,4 +11,5 @@ export interface Project {
     end: string          // ISO date (yyyy-mm-dd)
     updatedBy: string
     updatedAt: string    // ISO timestamp
+    version: number
 }

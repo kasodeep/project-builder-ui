@@ -7,6 +7,7 @@ import { fetchAllFeatures } from "@/api/feature.api"
 import { fetchUsersByTeam } from "@/api/auth.api"
 import { toast } from "sonner"
 import { extractErrorMessage } from "@/util/error"
+import axios from "axios"
 
 type LoadStatus = "idle" | "loading" | "succeeded" | "failed"
 type SidebarMode = "create" | "edit" | null
@@ -44,11 +45,8 @@ const initialState: TaskState = {
 }
 
 // ─── Thunks ───────────────────────────────────────────────────────────────────
-export const fetchTaskById = createAsyncThunk<
-    Task,
-    string,
-    { rejectValue: string }
->(
+
+export const fetchTaskById = createAsyncThunk<Task, string, { rejectValue: string }>(
     "task/fetchById",
     async (taskId, { rejectWithValue }) => {
         try {
@@ -86,7 +84,7 @@ export const createTask = createAsyncThunk<void, CreateTaskInput & { projectId: 
     "task/create",
     async (data, { dispatch, rejectWithValue }) => {
         try {
-            await secureApi.post("/task/create", data)
+            await secureApi.post("/task", data)
             dispatch(fetchTasksForProject(data.projectId))
         } catch (err) {
             return rejectWithValue(extractErrorMessage(err))
@@ -98,11 +96,18 @@ export const updateTask = createAsyncThunk<void, UpdateTaskInput & { projectId: 
     "task/update",
     async (data, { dispatch, rejectWithValue }) => {
         try {
-            const { projectId, ...payload } = data
-            await secureApi.put("/task/update", payload)
+            const { projectId, ...payload } = data            
+            await secureApi.put("/task", payload)
+
             dispatch(fetchTasksForProject(projectId))
             dispatch(fetchTaskById(data.id))
         } catch (err) {
+            // 409 = optimistic lock conflict — give a clear, actionable message
+            if (axios.isAxiosError(err) && err.response?.status === 409) {
+                return rejectWithValue(
+                    "This task was updated by someone else. Close the panel and reopen the task to get the latest version."
+                )
+            }
             return rejectWithValue(extractErrorMessage(err))
         }
     }
@@ -112,9 +117,27 @@ export const deleteTask = createAsyncThunk<string, string, { rejectValue: string
     "task/delete",
     async (taskId, { rejectWithValue }) => {
         try {
-            await secureApi.delete(`/task/delete/${taskId}`)
+            await secureApi.delete(`/task/${taskId}`)
             return taskId
         } catch (err) {
+            return rejectWithValue(extractErrorMessage(err))
+        }
+    }
+)
+
+export const completeTask = createAsyncThunk<string, string, { rejectValue: string }>(
+    "task/complete",
+    async (taskId, { rejectWithValue }) => {
+        try {
+            await secureApi.patch(`/task/${taskId}/complete`)
+            return taskId
+        } catch (err) {
+            // completeTask also goes through optimistic locking on the backend
+            if (axios.isAxiosError(err) && err.response?.status === 409) {
+                return rejectWithValue(
+                    "Task state changed concurrently. Please refresh and try again."
+                )
+            }
             return rejectWithValue(extractErrorMessage(err))
         }
     }
@@ -124,7 +147,7 @@ export const updateAssignees = createAsyncThunk<void, { taskId: string; assignee
     "task/updateAssignees",
     async (data, { rejectWithValue }) => {
         try {
-            await secureApi.put("/task-util/add-assignees", data)
+            await secureApi.put("/task-util/assignees", data)
         } catch (err) {
             return rejectWithValue(extractErrorMessage(err))
         }
@@ -135,7 +158,7 @@ export const updateDependencies = createAsyncThunk<void, { taskId: string; depen
     "task/updateDependencies",
     async (data, { rejectWithValue }) => {
         try {
-            await secureApi.put("/task-util/add-dependencies", data)
+            await secureApi.put("/task-util/dependencies", data)
         } catch (err) {
             return rejectWithValue(extractErrorMessage(err))
         }
@@ -143,6 +166,7 @@ export const updateDependencies = createAsyncThunk<void, { taskId: string; depen
 )
 
 // ─── Slice ────────────────────────────────────────────────────────────────────
+
 const taskSlice = createSlice({
     name: "task",
     initialState,
@@ -170,12 +194,17 @@ const taskSlice = createSlice({
     extraReducers: (builder) => {
         builder
             // ── fetchTaskById ───────────────────────────────────────────────
-            .addCase(fetchTaskById.pending, (s) => { s.selectedStatus = "loading" })
-            .addCase(fetchTaskById.fulfilled, (s, a) => {
+            .addCase(fetchTaskById.pending,    (s) => { s.selectedStatus = "loading" })
+            .addCase(fetchTaskById.fulfilled,  (s, a) => {
                 s.selectedStatus = "succeeded"
                 s.selectedTask = a.payload
+                // If the sidebar is open editing this task, sync the version so the
+                // next submit uses the freshest version number
+                if (s.editingTask?.id === a.payload.id) {
+                    s.editingTask = { ...s.editingTask, version: a.payload.version }
+                }
             })
-            .addCase(fetchTaskById.rejected, (s) => { s.selectedStatus = "failed" })
+            .addCase(fetchTaskById.rejected,   (s) => { s.selectedStatus = "failed" })
 
             // ── fetchTasksForProject ────────────────────────────────────────
             .addCase(fetchTasksForProject.pending, (s) => {
@@ -185,7 +214,6 @@ const taskSlice = createSlice({
             .addCase(fetchTasksForProject.fulfilled, (s, a) => {
                 s.status = "succeeded"
                 s.tasks = a.payload
-
                 // Re-sync selected task if still present
                 if (s.selectedTask) {
                     const fresh = a.payload.find(t => t.id === s.selectedTask!.id)
@@ -199,14 +227,14 @@ const taskSlice = createSlice({
             })
 
             // ── fetchFeatures ───────────────────────────────────────────────
-            .addCase(fetchFeatures.pending, (s) => { s.featuresStatus = "loading" })
+            .addCase(fetchFeatures.pending,   (s) => { s.featuresStatus = "loading" })
             .addCase(fetchFeatures.fulfilled, (s, a) => { s.featuresStatus = "succeeded"; s.features = a.payload })
-            .addCase(fetchFeatures.rejected, (s) => { s.featuresStatus = "failed" })
+            .addCase(fetchFeatures.rejected,  (s) => { s.featuresStatus = "failed" })
 
             // ── fetchTeamUsers ──────────────────────────────────────────────
-            .addCase(fetchTeamUsers.pending, (s) => { s.teamUsersStatus = "loading" })
+            .addCase(fetchTeamUsers.pending,   (s) => { s.teamUsersStatus = "loading" })
             .addCase(fetchTeamUsers.fulfilled, (s, a) => { s.teamUsersStatus = "succeeded"; s.teamUsers = a.payload })
-            .addCase(fetchTeamUsers.rejected, (s) => { s.teamUsersStatus = "failed" })
+            .addCase(fetchTeamUsers.rejected,  (s) => { s.teamUsersStatus = "failed" })
 
             // ── createTask ──────────────────────────────────────────────────
             .addCase(createTask.fulfilled, (s) => {
@@ -243,21 +271,27 @@ const taskSlice = createSlice({
                 toast.error(a.payload ?? "Failed to delete task")
             })
 
+            // ── completeTask ────────────────────────────────────────────────
+            .addCase(completeTask.fulfilled, (s, a) => {
+                // Optimistically flip the status in the local list
+                const task = s.tasks.find(t => t.id === a.payload)
+                if (task) task.status = "COMPLETED"
+                if (s.selectedTask?.id === a.payload) s.selectedTask = { ...s.selectedTask, status: "COMPLETED" }
+                toast.success("Task marked as completed")
+            })
+            .addCase(completeTask.rejected, (_, a) => {
+                toast.error(a.payload ?? "Failed to complete task")
+            })
+
             // ── updateAssignees ─────────────────────────────────────────────
-            .addCase(updateAssignees.fulfilled, () => {
-                toast.success("Assignees updated")
-            })
-            .addCase(updateAssignees.rejected, (_, a) => {
-                toast.error(a.payload ?? "Failed to update assignees")
-            })
+            .addCase(updateAssignees.fulfilled, () => { toast.success("Assignees updated") })
+            .addCase(updateAssignees.rejected,  (_, a) => { toast.error(a.payload ?? "Failed to update assignees") })
 
             // ── updateDependencies ──────────────────────────────────────────
             .addCase(updateDependencies.fulfilled, () => {
-                toast.success("Dependencies updated")
+                toast.success("Dependencies updated")                
             })
-            .addCase(updateDependencies.rejected, (_, a) => {
-                toast.error(a.payload ?? "Failed to update dependencies")
-            })
+            .addCase(updateDependencies.rejected,  (_, a) => { toast.error(a.payload ?? "Failed to update dependencies") })
     },
 })
 

@@ -1,9 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
+import type { PayloadAction } from "@reduxjs/toolkit"
 import { createProjectApi, fetchProjectsApi, updateProjectApi } from "@/api/project.api"
 import type { Project } from "@/types/project"
 import type { CreateProjectInput, UpdateProjectInput } from "@/schema/project.schema"
 import { extractErrorMessage } from "@/util/error"
 import { toast } from "sonner"
+import axios from "axios"
 
 type Status = "idle" | "loading" | "succeeded" | "failed"
 
@@ -54,6 +56,12 @@ export const updateProject = createAsyncThunk<void, UpdateProjectInput, { reject
             await updateProjectApi(data)
             dispatch(fetchProjects())
         } catch (err) {
+
+            if (axios.isAxiosError(err) && err.response?.status === 409) {
+                return rejectWithValue(
+                    "This project was updated by someone else. Please close and reopen it to get the latest version."
+                )
+            }
             return rejectWithValue(extractErrorMessage(err))
         }
     }
@@ -68,7 +76,7 @@ const projectSlice = createSlice({
             state.sidebarOpen = true
             state.editingProject = null
         },
-        openEditSidebar(state, action) {
+        openEditSidebar(state, action: PayloadAction<Project>) {
             state.sidebarOpen = true
             state.editingProject = action.payload
         },

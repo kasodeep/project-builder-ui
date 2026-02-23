@@ -24,6 +24,7 @@ export const createTaskSchema = taskBaseSchema
 
 export const updateTaskSchema = taskBaseSchema.extend({
     id: z.string().min(1),
+    version: z.number().int(),
 })
 
 export type CreateTaskInput = z.infer<typeof createTaskSchema>

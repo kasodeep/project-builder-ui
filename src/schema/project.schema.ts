@@ -15,7 +15,8 @@ export const projectBaseSchema = z.object({
 export const createProjectSchema = projectBaseSchema
 
 export const updateProjectSchema = projectBaseSchema.extend({
-    projectId: z.uuid("Invalid project ID")
+    projectId: z.uuid("Invalid project ID"),
+    version: z.number()
 })
 
 export type CreateProjectInput = z.infer<typeof createProjectSchema>

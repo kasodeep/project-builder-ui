@@ -28,4 +28,5 @@ export type Task = {
     updatedAt: string | null
     startedAt: string | null
     completedAt: string | null
+    version: number
 }

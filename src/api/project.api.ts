@@ -7,13 +7,13 @@ export const fetchProjectsApi = async () => {
 }
 
 export const createProjectApi = async (data: CreateProjectInput) => {
-    const res = await secureApi.post(`/project/create`, data)
+    const res = await secureApi.post(`/project`, data)
     return res.data
 }
 
 export const updateProjectApi = async (data: UpdateProjectInput) => {
     const res = await secureApi.patch(
-        `/project/update`,
+        `/project`,
         data
     )
     return res.data

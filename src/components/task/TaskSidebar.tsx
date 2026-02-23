@@ -38,7 +38,7 @@ const TAB_ICONS: Record<Tab, React.ReactNode> = {
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
-// edit tabs headings.
+
 function SidebarTabs({ active, onChange }: { active: Tab; onChange: (t: Tab) => void }) {
     return (
         <div className="flex border-b border-slate-100 shrink-0 px-1">
@@ -62,7 +62,6 @@ function SidebarTabs({ active, onChange }: { active: Tab; onChange: (t: Tab) => 
     )
 }
 
-// use for create and update
 function BasicTab({
     register, control, errors, features, featuresStatus,
 }: {
@@ -119,7 +118,6 @@ function BasicTab({
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-
                 {/* priority */}
                 <div className="space-y-1.5">
                     <Label className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
@@ -160,7 +158,6 @@ function BasicTab({
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-
                 {/* start */}
                 <div className="space-y-1.5">
                     <Label className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
@@ -193,9 +190,7 @@ function CheckMark() {
     )
 }
 
-function SelectableUserRow({ user, selected, onToggle }: {
-    user: UserDto; selected: boolean; onToggle: () => void
-}) {
+function SelectableUserRow({ user, selected, onToggle }: { user: UserDto; selected: boolean; onToggle: () => void }) {
     return (
         <button
             type="button"
@@ -222,9 +217,7 @@ function SelectableUserRow({ user, selected, onToggle }: {
     )
 }
 
-function SelectableTaskRow({ task, selected, onToggle }: {
-    task: Task; selected: boolean; onToggle: () => void
-}) {
+function SelectableTaskRow({ task, selected, onToggle }: { task: Task; selected: boolean; onToggle: () => void }) {
     return (
         <button
             type="button"
@@ -276,7 +269,7 @@ function SelectedBadges({ ids, resolveLabel, onRemove }: {
     )
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
+// ─── Main ─────────────────────────────────────────────────────────────────────
 
 export default function TaskSidebar() {
     const { projectId } = useParams()
@@ -296,7 +289,6 @@ export default function TaskSidebar() {
     const [dependencies, setDependencies] = useState<string[]>([])
     const [depSaving, setDepSaving] = useState(false)
 
-    // getting the handlers for the form.
     const {
         register, handleSubmit, control, reset, formState: { errors, isSubmitting },
     } = useForm<CreateTaskInput | UpdateTaskInput>({
@@ -304,7 +296,8 @@ export default function TaskSidebar() {
         defaultValues: { name: "", featureId: "", priority: 5, status: undefined, start: "", end: "" },
     })
 
-    // initial effect, setting the assignees, dependencies, edit values.
+    // Populate form when sidebar opens.
+    // version is included in the reset so it travels invisibly with the submit payload.
     useEffect(() => {
         if (!sidebarOpen) return
         if (isEdit && editingTask) {
@@ -316,6 +309,7 @@ export default function TaskSidebar() {
                 status: editingTask.status ?? undefined,
                 start: editingTask.start ?? "",
                 end: editingTask.end ?? "",
+                version: editingTask.version,   // ← optimistic lock version
             })
             setAssignees(editingTask.assignees ?? [])
             setDependencies(editingTask.dependencies ?? [])
@@ -327,14 +321,12 @@ export default function TaskSidebar() {
         setActiveTab("basic")
     }, [sidebarOpen, sidebarMode, editingTask?.id])
 
-    // fetch the features for new tasks, for old already done.
     useEffect(() => {
         if (sidebarOpen && featuresStatus === "idle") dispatch(fetchFeatures())
     }, [sidebarOpen, featuresStatus, dispatch])
 
     const handleClose = () => dispatch(closeSidebar())
 
-    // submit the form.
     const onSubmit = async (data: CreateTaskInput | UpdateTaskInput) => {
         if (!projectId) return
         if (isEdit && editingTask) {
@@ -344,7 +336,6 @@ export default function TaskSidebar() {
         }
     }
 
-    // submit the assignee and dependencies.
     const handleSaveAssignees = async () => {
         if (!editingTask) return
         setAssigneeSaving(true)
@@ -355,24 +346,21 @@ export default function TaskSidebar() {
     const handleSaveDependencies = async () => {
         if (!editingTask) return
         setDepSaving(true)
-        await dispatch(updateDependencies({ taskId: editingTask.id, dependencies }))
-        setDepSaving(false)
 
-        if (projectId) dispatch(fetchTasksForProject(projectId))
+        try {
+            await dispatch(updateDependencies({ taskId: editingTask.id, dependencies })).unwrap()
+
+            if (projectId) dispatch(fetchTasksForProject(projectId))
+        } catch {
+        } finally {
+            setDepSaving(false)
+        }
     }
 
-    // helpers for frontend.
-    const toggleAssignee = (id: string) =>
-        setAssignees(prev => prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id])
-
-    const toggleDependency = (id: string) =>
-        setDependencies(prev => prev.includes(id) ? prev.filter(d => d !== id) : [...prev, id])
-
-    const resolveUsername = (id: string) =>
-        teamUsers.find(u => u.id === id)?.username ?? id.slice(0, 8) + "…"
-
-    const resolveTaskName = (id: string) =>
-        tasks.find(t => t.id === id)?.name ?? id.slice(0, 8) + "…"
+    const toggleAssignee = (id: string) => setAssignees(prev => prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id])
+    const toggleDependency = (id: string) => setDependencies(prev => prev.includes(id) ? prev.filter(d => d !== id) : [...prev, id])
+    const resolveUsername = (id: string) => teamUsers.find(u => u.id === id)?.username ?? id.slice(0, 8) + "…"
+    const resolveTaskName = (id: string) => tasks.find(t => t.id === id)?.name ?? id.slice(0, 8) + "…"
 
     return (
         <>
@@ -390,7 +378,7 @@ export default function TaskSidebar() {
                 "fixed top-0 right-0 h-full w-110 bg-white border-l border-slate-200 shadow-2xl z-50 flex flex-col transition-transform duration-300 ease-in-out",
                 sidebarOpen ? "translate-x-0" : "translate-x-full"
             )}>
-                {/* header + close */}
+                {/* Header */}
                 <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 shrink-0">
                     <div>
                         <h2 className="text-base font-bold text-slate-900">
@@ -405,12 +393,11 @@ export default function TaskSidebar() {
                     </Button>
                 </div>
 
-                {/* edit nav headers */}
+                {/* Tab nav (edit only) */}
                 {isEdit && <SidebarTabs active={activeTab} onChange={setActiveTab} />}
 
                 {/* Body */}
                 <div className="flex-1 overflow-y-auto">
-
                     {activeTab === "basic" && (
                         <BasicTab
                             register={register}
@@ -426,9 +413,7 @@ export default function TaskSidebar() {
                             <p className="text-sm text-slate-500 leading-relaxed">
                                 Select team members to assign to this task. This replaces the current assignees.
                             </p>
-
                             <SelectedBadges ids={assignees} resolveLabel={resolveUsername} onRemove={toggleAssignee} />
-
                             {teamUsersStatus === "loading" && (
                                 <div className="flex items-center gap-2 text-slate-400 text-sm">
                                     <Loader2 className="h-4 w-4 animate-spin" /> Loading team members…
@@ -442,9 +427,6 @@ export default function TaskSidebar() {
                                         Retry
                                     </button>
                                 </div>
-                            )}
-                            {!teamId && teamUsersStatus !== "loading" && teamUsersStatus !== "succeeded" && (
-                                <p className="text-sm text-amber-500">Team info not available. Try refreshing the page.</p>
                             )}
                             {teamUsersStatus === "succeeded" && (
                                 <div className="space-y-2">
@@ -461,7 +443,6 @@ export default function TaskSidebar() {
                                     }
                                 </div>
                             )}
-
                         </div>
                     )}
 
@@ -470,9 +451,7 @@ export default function TaskSidebar() {
                             <p className="text-sm text-slate-500 leading-relaxed">
                                 Select tasks this task depends on. This replaces the current dependencies.
                             </p>
-
                             <SelectedBadges ids={dependencies} resolveLabel={resolveTaskName} onRemove={toggleDependency} />
-
                             <div className="space-y-2">
                                 {tasks.filter(t => t.id !== editingTask?.id).length === 0
                                     ? <p className="text-sm text-slate-400 italic">No other tasks in this project</p>
@@ -497,8 +476,13 @@ export default function TaskSidebar() {
                     <Button variant="outline" className="flex-1" onClick={handleClose}>Cancel</Button>
 
                     {activeTab === "basic" && (
-                        <Button form="task-form" type="submit" className="flex-1 gap-2"
-                            disabled={isSubmitting} onClick={handleSubmit(onSubmit)}>
+                        <Button
+                            form="task-form"
+                            type="submit"
+                            className="flex-1 gap-2"
+                            disabled={isSubmitting}
+                            onClick={handleSubmit(onSubmit)}
+                        >
                             {isSubmitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                             {isEdit ? "Update Task" : "Create Task"}
                         </Button>

@@ -32,7 +32,8 @@ const priorityColor = (p: number | null) => {
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
-function InfoRow({ icon, label, value, }: { icon: React.ReactNode, label: string, value: React.ReactNode }) {
+
+function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: React.ReactNode }) {
     return (
         <div className="flex items-start gap-3 py-2.5">
             <div className="mt-0.5 text-slate-400 shrink-0">{icon}</div>
@@ -48,7 +49,6 @@ function InfoRow({ icon, label, value, }: { icon: React.ReactNode, label: string
     )
 }
 
-// loading state.
 function LoadingState() {
     return (
         <Card className="h-full">
@@ -60,7 +60,6 @@ function LoadingState() {
     )
 }
 
-// when no task is selected.
 function EmptyState() {
     return (
         <Card className="h-full">
@@ -70,16 +69,13 @@ function EmptyState() {
                 </div>
                 <div>
                     <p className="font-semibold text-slate-700">No task selected</p>
-                    <p className="text-sm text-slate-400 mt-1">
-                        Click a node in the graph to view task details
-                    </p>
+                    <p className="text-sm text-slate-400 mt-1">Click a node in the graph to view task details</p>
                 </div>
             </CardContent>
         </Card>
     )
 }
 
-// header for the task.
 function TaskHeader({ task, onEdit, onDelete }: {
     task: Task
     onEdit: () => void
@@ -87,7 +83,6 @@ function TaskHeader({ task, onEdit, onDelete }: {
 }) {
     return (
         <CardHeader className="pb-2 border-b border-slate-100 shrink-0">
-
             <div className="flex items-start justify-between gap-2">
                 <CardTitle className="text-base font-bold text-slate-900 leading-tight line-clamp-2 flex-1 min-w-0">
                     {task.name}
@@ -102,7 +97,7 @@ function TaskHeader({ task, onEdit, onDelete }: {
             <div className="flex items-center gap-2 mt-3">
                 <Button size="sm" variant="outline" className="gap-1 h-8 text-xs flex-1" onClick={onEdit}>
                     <Pencil className="h-3 w-3" />
-                    Edit Task
+                    Edit
                 </Button>
                 <DeleteTaskDialog task={task} onDelete={onDelete} />
             </div>
@@ -110,7 +105,6 @@ function TaskHeader({ task, onEdit, onDelete }: {
     )
 }
 
-// meta display using info row.
 function TaskMeta({ task }: { task: Task }) {
     return (
         <div className="px-5 divide-y divide-slate-50">
@@ -133,11 +127,7 @@ function TaskMeta({ task }: { task: Task }) {
             <InfoRow
                 icon={<Calendar className="h-3.5 w-3.5" />}
                 label="Timeline"
-                value={
-                    task.start && task.end
-                        ? <span>{task.start} → {task.end}</span>
-                        : null
-                }
+                value={task.start && task.end ? <span>{task.start} → {task.end}</span> : null}
             />
             <InfoRow
                 icon={<User className="h-3.5 w-3.5" />}
@@ -204,21 +194,17 @@ function DependencyList({ dependencies }: { dependencies: { id: string; label: s
     )
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
+// ─── Main ─────────────────────────────────────────────────────────────────────
 export default function TaskDetails({ task, status }: Props) {
     const dispatch = useDispatch<AppDispatch>()
 
     const { teamUsers, teamUsersStatus, featuresStatus, tasks } = useSelector((s: RootState) => s.task)
     const teamId = useSelector((s: RootState) => s.auth.teamId)
 
-    // fetch the features eager.
     useEffect(() => {
-        if (featuresStatus === "idle") {
-            dispatch(fetchFeatures())
-        }
+        if (featuresStatus === "idle") dispatch(fetchFeatures())
     }, [featuresStatus, dispatch])
 
-    // fetch the users for the team.
     useEffect(() => {
         if (!teamId) return
         if (teamUsersStatus === "idle" || teamUsersStatus === "failed") {
@@ -229,7 +215,6 @@ export default function TaskDetails({ task, status }: Props) {
     if (status === "loading") return <LoadingState />
     if (!task) return <EmptyState />
 
-    // showing the names of users and tasks.
     const resolvedAssignees = (task.assignees ?? []).map(id => ({
         id,
         label: teamUsers.find(u => u.id === id)?.username ?? id.slice(0, 8) + "…",
@@ -247,7 +232,6 @@ export default function TaskDetails({ task, status }: Props) {
                 onEdit={() => dispatch(openEditSidebar(task))}
                 onDelete={() => dispatch(deleteTask(task.id))}
             />
-
             <CardContent className="flex-1 overflow-auto p-0">
                 <TaskMeta task={task} />
                 <AssigneeList assignees={resolvedAssignees} />
