@@ -375,7 +375,7 @@ export default function TaskSidebar() {
 
             {/* Panel */}
             <div className={cn(
-                "fixed top-0 right-0 h-full w-110 bg-white border-l border-slate-200 shadow-2xl z-50 flex flex-col transition-transform duration-300 ease-in-out",
+                "fixed top-0 right-0 h-full md:w-110 w-full bg-white border-l border-slate-200 shadow-2xl z-50 flex flex-col transition-transform duration-300 ease-in-out",
                 sidebarOpen ? "translate-x-0" : "translate-x-full"
             )}>
                 {/* Header */}
