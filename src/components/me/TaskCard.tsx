@@ -1,18 +1,20 @@
 import type { Task } from "@/types/task"
-import { Calendar, CheckCircle2, ArrowUpCircle, PlayCircle, CheckSquare, Tag } from "lucide-react"
+import { Status } from "@/types/task"
+import { Calendar, ArrowUpCircle, PlayCircle, CheckSquare, Tag } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { Separator } from "@/components/ui/separator"
 import { formatDate } from "@/util/helper"
 import { URGENT_PRIORITY } from "@/pages/Me"
+import CompleteTaskDialog from "@/components/me/CompleteTaskDialog"
 
 interface TaskCardProps {
     task: Task
-    onComplete: (id: string) => void
+    onComplete?: (id: string) => void
 }
 
-export const TaskCard = ({ task, onComplete, }: TaskCardProps) => {
+export const TaskCard = ({ task, onComplete }: TaskCardProps) => {
+    const canComplete = task.status !== Status.COMPLETED && onComplete != null
 
     return (
         <div className={cn(
@@ -42,15 +44,12 @@ export const TaskCard = ({ task, onComplete, }: TaskCardProps) => {
                     </h3>
                 </div>
 
-                {/* complete button */}
-                <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 shrink-0 transition-all"
-                    onClick={() => onComplete(task.id)}
-                >
-                    <CheckCircle2 className="h-5 w-5" />
-                </Button>
+                {/* complete button — dialog-gated, hidden for completed/locked tasks */}
+                {canComplete && (
+                    <div className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <CompleteTaskDialog task={task} onComplete={onComplete} />
+                    </div>
+                )}
             </div>
 
             {/* timeline section */}
@@ -65,7 +64,7 @@ export const TaskCard = ({ task, onComplete, }: TaskCardProps) => {
                     </div>
                 </div>
 
-                {/* started and completed. */}
+                {/* started and completed */}
                 <div className="flex flex-col gap-1 border-l pl-3">
                     <span className="text-slate-400 font-medium uppercase text-[11px]">Actual</span>
                     <div className="space-y-0.5">
@@ -88,9 +87,8 @@ export const TaskCard = ({ task, onComplete, }: TaskCardProps) => {
 
             <Separator className="bg-slate-100" />
 
-            {/* footer: priority and assignee */}
+            {/* footer: priority */}
             <div className="flex items-center justify-end">
-                {/* priority */}
                 <div className="flex items-center gap-2">
                     {task.priority && (
                         <div className={cn(

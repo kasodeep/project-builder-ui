@@ -21,6 +21,10 @@ export default function Me() {
 
     const onComplete = async (taskId: string) => {
         await taskCompleteApi(taskId)
+        // Optimistically mark the task as completed in local state.
+        setTasks(prev =>
+            prev.map(t => t.id === taskId ? { ...t, status: Status.COMPLETED } : t)
+        )
     }
 
     // Active tasks for quadrants
@@ -56,14 +60,14 @@ export default function Me() {
                 <Spinner className="h-10 w-10" />
             ) : (
                 <>
-                    {/* matrix for active tasks */}
+                    {/* Matrix for active/pending tasks — complete button shown via dialog */}
                     <section>
                         <EisenhowerMatrix tasks={quadrants} onComplete={onComplete} />
                     </section>
 
-                    {/* bottom sections: completed & locked side by side */}
+                    {/* Bottom sections: completed & locked side by side */}
                     <section className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
-                        {/* Completed Tasks */}
+                        {/* Completed Tasks — no complete button rendered */}
                         <div>
                             <h2 className="text-lg font-bold text-slate-800 mb-4">Completed Recently</h2>
                             {completedTasks.length === 0 ? (
@@ -79,7 +83,7 @@ export default function Me() {
                             )}
                         </div>
 
-                        {/* Locked Tasks */}
+                        {/* Locked Tasks — no complete button either */}
                         <div>
                             <h2 className="text-lg font-bold text-slate-800 mb-4">Locked Tasks</h2>
                             {lockedTasks.length === 0 ? (
