@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Calendar, Pencil, Users, ArrowRight, Clock } from "lucide-react"
+import { Calendar, Pencil, Users, ArrowRight, Clock, BarChart3 } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { formatDate } from "@/util/helper"
 
@@ -117,14 +117,33 @@ const ProjectCard = ({ project, onEdit }: ProjectCardProps) => {
                         </div>
                     </div>
 
-                    <Button
-                        size="sm"
-                        variant="ghost"
-                        className="font-bold text-xs h-8 px-3 rounded-md transition-colors"
-                        onClick={() => navigate(`/dashboard/${project.id}`)}
-                    >
-                        Dashboard
-                    </Button>
+                    {/* navigation buttons */}
+                    <div className="flex items-center gap-1">
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="font-bold text-xs h-8 px-3 rounded-md transition-colors text-slate-500 hover:text-violet-600 hover:bg-violet-50"
+                                        onClick={() => navigate(`/analytics/${project.id}`)}
+                                    >
+                                        <BarChart3 className="h-3.5 w-3.5" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent><p className="text-xs">Analytics</p></TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+
+                        <Button
+                            size="sm"
+                            variant="ghost"
+                            className="font-bold text-xs h-8 px-3 rounded-md transition-colors"
+                            onClick={() => navigate(`/dashboard/${project.id}`)}
+                        >
+                            Dashboard
+                        </Button>
+                    </div>
                 </div>
             </CardContent>
         </Card>
